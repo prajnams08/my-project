@@ -1,0 +1,40 @@
+import tkinter as tk
+
+# Set up the main window
+root = tk.Tk()
+root.title("Bouncing Ball Animation 💖")
+canvas_width = 1800
+canvas_height =1000
+canvas = tk.Canvas(root, width=canvas_width, height=canvas_height, bg="lightblue")
+canvas.pack()
+
+# Create the ball
+ball_radius = 20
+ball = canvas.create_oval(
+    100, 100, 100 + ball_radius * 2, 100 + ball_radius * 2, fill="hotpink"
+)
+
+# Initial ball movement speed
+dx = 4
+dy = 3
+
+# Animation function
+def animate():
+    global dx, dy
+    canvas.move(ball, dx, dy)
+    pos = canvas.coords(ball)
+
+    # Bounce off the walls
+    if pos[2] >= canvas_width or pos[0] <= 0:
+        dx = -dx
+    if pos[3] >= canvas_height or pos[1] <= 0:
+        dy = -dy
+
+    # Repeat the animation
+    root.after(20, animate)
+
+# Start the animation
+animate()
+
+# Run the main loop
+root.mainloop()
