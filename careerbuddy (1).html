@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CareerBuddy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root{
+    --ink: #14171F;
+    --panel: #1C212C;
+    --panel-2: #232936;
+    --paper: #F6F3EC;
+    --amber: #E7A93E;
+    --amber-dim: #a9822f;
+    --sage: #7FA98A;
+    --text-light: #EDEAE1;
+    --text-dim: #9BA0AC;
+    --line: #333A48;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--ink);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    min-height:100vh;
+  }
+
+  .app{
+    width:100%;
+    max-width: 760px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    height: 85vh;
+    max-height: 780px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+
+  /* Header */
+  .header{
+    padding: 22px 26px 16px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+  }
+  .brand .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--sage);
+    box-shadow: 0 0 0 4px rgba(127,169,138,0.15);
+  }
+  .tagline{
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Mode tabs styled as file tabs */
+  .tabs{
+    display:flex;
+    gap: 6px;
+    padding: 14px 26px 0;
+    background: var(--panel);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding: 10px 8px;
+    font-size: 12.5px;
+    font-weight:600;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-bottom:none;
+    border-radius: 10px 10px 0 0;
+    cursor:pointer;
+    transition: all 0.15s ease;
+  }
+  .tab:hover{ color: var(--text-light); }
+  .tab.active{
+    color: var(--ink);
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  /* Chat area */
+  .chat{
+    flex:1;
+    overflow-y:auto;
+    padding: 22px 26px;
+    display:flex;
+    flex-direction:column;
+    gap: 16px;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(231,169,62,0.05), transparent 40%),
+      var(--panel);
+  }
+  .chat::-webkit-scrollbar{ width:8px; }
+  .chat::-webkit-scrollbar-thumb{ background: var(--line); border-radius: 8px; }
+
+  .msg{
+    max-width: 82%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    animation: rise 0.25s ease;
+    white-space: pre-wrap;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .msg.bot{
+    align-self:flex-start;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-top-left-radius: 3px;
+    color: var(--text-light);
+  }
+  .msg.bot .label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--amber);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .msg.user{
+    align-self:flex-end;
+    background: var(--paper);
+    color: var(--ink);
+    border-top-right-radius: 3px;
+    transform: rotate(-0.3deg);
+  }
+
+  .msg.typing{
+    align-self:flex-start;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-top-left-radius: 3px;
+    display:flex;
+    gap:5px;
+    padding: 14px 16px;
+  }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--text-dim);
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2){ animation-delay: 0.15s; }
+  .typing span:nth-child(3){ animation-delay: 0.3s; }
+  @keyframes bounce{ 0%,60%,100%{transform:translateY(0); opacity:0.5;} 30%{transform:translateY(-4px); opacity:1;} }
+
+  /* Input */
+  .inputbar{
+    display:flex;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+  .inputbar input{
+    flex:1;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text-light);
+    font-size: 14px;
+    font-family:'Inter', sans-serif;
+    outline:none;
+    transition: border-color 0.15s ease;
+  }
+  .inputbar input:focus{ border-color: var(--amber-dim); }
+  .inputbar input::placeholder{ color: var(--text-dim); }
+
+  .inputbar button{
+    background: var(--amber);
+    color: var(--ink);
+    border:none;
+    border-radius: 10px;
+    padding: 0 20px;
+    font-weight:700;
+    font-size: 14px;
+    cursor:pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .inputbar button:hover{ background: #f0ba52; }
+  .inputbar button:active{ transform: scale(0.97); }
+  .inputbar button:disabled{ background: var(--line); color: var(--text-dim); cursor:not-allowed; }
+
+  .footnote{
+    text-align:center;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    padding: 8px 0 2px;
+    font-family:'IBM Plex Mono', monospace;
+    background: var(--panel-2);
+  }
+
+  @media (max-width: 560px){
+    .app{ height: 92vh; border-radius: 12px; }
+    .brand h1{ font-size: 21px; }
+    .tab{ font-size: 10.5px; padding: 9px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="dot"></div>
+      <h1>CareerBuddy</h1>
+    </div>
+    <div class="tagline">an ai study &amp; interview companion for freshers</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-mode="resume">Resume Tips</div>
+    <div class="tab" data-mode="interview">Mock Interview</div>
+    <div class="tab" data-mode="concept">Explain a Concept</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="inputbar">
+    <input id="input" type="text" placeholder="Ask something..." />
+    <button id="send">Send</button>
+  </div>
+  <div class="footnote">CareerBuddy can make mistakes. Double-check important advice.</div>
+</div>
+
+<script>
+  const chatEl = document.getElementById('chat');
+  const inputEl = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+  const tabs = document.querySelectorAll('.tab');
+
+  const modes = {
+    resume: {
+      label: "Resume Tips",
+      system: "You are CareerBuddy, a warm and practical career mentor for entry-level job seekers in India (freshers, BCA/MCA graduates). The user is asking about resumes. Give clear, specific, actionable advice - not generic platitudes. Keep answers concise (3-6 sentences or short bullet points). Avoid markdown headers.",
+      greeting: "Ask me anything about your resume — formatting, what to include as a fresher, how to phrase projects, ATS tips, whatever you're stuck on."
+    },
+    interview: {
+      label: "Mock Interview",
+      system: "You are CareerBuddy running a mock interview for an entry-level candidate in India. Ask ONE common HR or basic technical interview question at a time (mix it up: tell me about yourself, strengths/weaknesses, why this role, basic CS fundamentals, situational questions). After the user answers, give brief, honest, constructive feedback (2-4 sentences: what was good, what to improve) and then ask the next question. Keep it encouraging but real, not just praise.",
+      greeting: "Let's do a mock interview. I'll ask a question, you answer like you would in a real interview, and I'll give you feedback. Ready? Here's your first question: Tell me about yourself."
+    },
+    concept: {
+      label: "Explain a Concept",
+      system: "You are CareerBuddy, explaining technical concepts (OOP, DBMS, Python, ML/DL basics, networking, OS) simply and clearly to a fresher preparing for interviews. Use short, plain-language explanations with a simple example or analogy. Keep it under 6 sentences unless the user asks for more depth. Avoid markdown headers.",
+      greeting: "What concept do you want explained? Try something like 'What is polymorphism' or 'Explain normalization in DBMS'."
+    }
+  };
+
+  let currentMode = 'resume';
+  let histories = { resume: [], interview: [], concept: [] };
+  let started = { resume:false, interview:false, concept:false };
+
+  function addMsg(role, text, label){
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    if(role === 'bot'){
+      const lab = document.createElement('span');
+      lab.className = 'label';
+      lab.textContent = label || modes[currentMode].label.toUpperCase();
+      div.appendChild(lab);
+      const body = document.createElement('span');
+      body.textContent = text;
+      div.appendChild(body);
+    } else {
+      div.textContent = text;
+    }
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+    return div;
+  }
+
+  function addTyping(){
+    const div = document.createElement('div');
+    div.className = 'msg typing';
+    div.id = 'typing-indicator';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+  function removeTyping(){
+    const t = document.getElementById('typing-indicator');
+    if(t) t.remove();
+  }
+
+  function renderHistory(mode){
+    chatEl.innerHTML = '';
+    if(!started[mode]){
+      addMsg('bot', modes[mode].greeting);
+      histories[mode].push({role:'assistant', content: modes[mode].greeting});
+      started[mode] = true;
+      return;
+    }
+    histories[mode].forEach(m => {
+      addMsg(m.role === 'user' ? 'user' : 'bot', m.content, modes[mode].label.toUpperCase());
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMode = tab.dataset.mode;
+      renderHistory(currentMode);
+    });
+  });
+
+  async function callClaude(mode){
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: modes[mode].system,
+        messages: histories[mode].map(m => ({ role: m.role, content: m.content }))
+      })
+    });
+    const data = await res.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    return textBlock ? textBlock.text : "Sorry, I couldn't generate a response just now — try again.";
+  }
+
+  async function sendMessage(){
+    const text = inputEl.value.trim();
+    if(!text) return;
+    inputEl.value = '';
+    sendBtn.disabled = true;
+
+    addMsg('user', text);
+    histories[currentMode].push({role:'user', content: text});
+
+    addTyping();
+    try{
+      const reply = await callClaude(currentMode);
+      removeTyping();
+      addMsg('bot', reply, modes[currentMode].label.toUpperCase());
+      histories[currentMode].push({role:'assistant', content: reply});
+    } catch(e){
+      removeTyping();
+      addMsg('bot', "Something went wrong reaching CareerBuddy. Please try again.", "ERROR");
+    }
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+  // init
+  renderHistory(currentMode);
+</script>
+
+</body>
+</html>
