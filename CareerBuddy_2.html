@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CareerBuddy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Georgia&display=swap');
+
+  :root{
+    --ink: #14171F;
+    --panel: #1C212C;
+    --panel-2: #232936;
+    --paper: #F6F3EC;
+    --amber: #E7A93E;
+    --amber-dim: #a9822f;
+    --sage: #7FA98A;
+    --text-light: #EDEAE1;
+    --text-dim: #9BA0AC;
+    --line: #333A48;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--ink);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    min-height:100vh;
+  }
+
+  .app{
+    width:100%;
+    max-width: 820px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    height: 88vh;
+    max-height: 840px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+
+  .header{
+    padding: 22px 26px 16px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  }
+  .brand{ display:flex; align-items:baseline; gap:10px; }
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+  }
+  .brand .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--sage);
+    box-shadow: 0 0 0 4px rgba(127,169,138,0.15);
+  }
+  .tagline{
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .tabs{ display:flex; gap: 6px; padding: 14px 26px 0; background: var(--panel); }
+  .tab{
+    flex:1; text-align:center; padding: 10px 6px;
+    font-size: 11.5px; font-weight:600;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em; text-transform: uppercase;
+    color: var(--text-dim); background: var(--panel-2);
+    border: 1px solid var(--line); border-bottom:none;
+    border-radius: 10px 10px 0 0; cursor:pointer;
+    transition: all 0.15s ease;
+  }
+  .tab:hover{ color: var(--text-light); }
+  .tab.active{ color: var(--ink); background: var(--amber); border-color: var(--amber); }
+
+  /* ---- Chat view ---- */
+  .chat{
+    flex:1; overflow-y:auto; padding: 22px 26px;
+    display:flex; flex-direction:column; gap: 16px;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(231,169,62,0.05), transparent 40%),
+      var(--panel);
+  }
+  .chat::-webkit-scrollbar{ width:8px; }
+  .chat::-webkit-scrollbar-thumb{ background: var(--line); border-radius: 8px; }
+
+  .msg{
+    max-width: 82%; padding: 13px 16px; border-radius: 12px;
+    font-size: 14.5px; line-height: 1.55;
+    animation: rise 0.25s ease; white-space: pre-wrap;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .msg.bot{
+    align-self:flex-start; background: var(--panel-2);
+    border: 1px solid var(--line); border-top-left-radius: 3px;
+    color: var(--text-light);
+  }
+  .msg.bot .label{
+    display:block; font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px; color: var(--amber);
+    margin-bottom: 6px; letter-spacing: 0.05em;
+  }
+  .msg.user{
+    align-self:flex-end; background: var(--paper); color: var(--ink);
+    border-top-right-radius: 3px; transform: rotate(-0.3deg);
+  }
+
+  .suggestions{ display:flex; flex-wrap:wrap; gap:8px; padding: 0 26px 14px; background: var(--panel); }
+  .chip{
+    font-size: 12px; font-family:'Inter', sans-serif;
+    color: var(--text-light); background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 13px; cursor:pointer; transition: all 0.15s ease;
+  }
+  .chip:hover{ border-color: var(--amber-dim); color: var(--amber); }
+
+  .inputbar{
+    display:flex; gap: 10px; padding: 16px 20px;
+    border-top: 1px solid var(--line); background: var(--panel-2);
+  }
+  .inputbar input{
+    flex:1; background: var(--ink); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px; color: var(--text-light);
+    font-size: 14px; font-family:'Inter', sans-serif; outline:none;
+    transition: border-color 0.15s ease;
+  }
+  .inputbar input:focus{ border-color: var(--amber-dim); }
+  .inputbar input::placeholder{ color: var(--text-dim); }
+  .inputbar button{
+    background: var(--amber); color: var(--ink); border:none;
+    border-radius: 10px; padding: 0 20px; font-weight:700; font-size: 14px;
+    cursor:pointer; transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .inputbar button:hover{ background: #f0ba52; }
+  .inputbar button:active{ transform: scale(0.97); }
+
+  .footnote{
+    text-align:center; font-size: 10.5px; color: var(--text-dim);
+    padding: 8px 0 2px; font-family:'IBM Plex Mono', monospace;
+    background: var(--panel-2);
+  }
+
+  /* ---- Builder view ---- */
+  .builder{
+    flex:1; overflow-y:auto; padding: 20px 26px; display:none;
+    background: var(--panel);
+  }
+  .builder::-webkit-scrollbar{ width:8px; }
+  .builder::-webkit-scrollbar-thumb{ background: var(--line); border-radius: 8px; }
+
+  .b-row{ display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .b-field{ flex:1; min-width: 160px; display:flex; flex-direction:column; gap:5px; }
+  .b-field.full{ flex-basis: 100%; }
+  .b-field label{
+    font-family:'IBM Plex Mono', monospace; font-size: 10.5px;
+    color: var(--amber); letter-spacing: 0.04em; text-transform:uppercase;
+  }
+  .b-field input, .b-field select, .b-field textarea{
+    background: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; color: var(--text-light); font-size: 13.5px;
+    font-family:'Inter', sans-serif; outline:none; resize: vertical;
+  }
+  .b-field input:focus, .b-field select:focus, .b-field textarea:focus{ border-color: var(--amber-dim); }
+  .b-field .hint{ font-size: 11px; color: var(--text-dim); }
+
+  .b-section-title{
+    font-family:'IBM Plex Mono', monospace; font-size: 11.5px;
+    color: var(--sage); letter-spacing: 0.05em; text-transform:uppercase;
+    margin: 18px 0 10px; padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .b-section-title:first-child{ border-top:none; margin-top:0; padding-top:0; }
+
+  .b-actions{ display:flex; gap:10px; margin-top: 20px; flex-wrap:wrap; }
+  .b-actions button{
+    border:none; border-radius: 9px; padding: 12px 18px; font-weight:700;
+    font-size: 13.5px; cursor:pointer; font-family:'Inter', sans-serif;
+    transition: transform 0.1s ease;
+  }
+  .b-actions button:active{ transform: scale(0.97); }
+  .btn-generate{ background: var(--amber); color: var(--ink); }
+  .btn-generate:hover{ background: #f0ba52; }
+  .btn-copy{ background: var(--sage); color: var(--ink); }
+  .btn-download{ background: var(--panel-2); color: var(--text-light); border: 1px solid var(--line) !important; }
+  .btn-download:hover{ border-color: var(--amber-dim) !important; }
+
+  .b-preview-wrap{ margin-top: 22px; }
+  .b-preview-label{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim);
+    margin-bottom: 8px; letter-spacing: 0.04em; text-transform:uppercase;
+  }
+  #resumePreview{
+    background: #fff; color: #222; border-radius: 6px; padding: 34px 38px;
+    font-family: Georgia, serif; line-height:1.5; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  /* --- resume template: classic --- */
+  .tpl-classic h2.rname{ font-size:24px; margin-bottom:2px; font-family:Georgia,serif; }
+  .tpl-classic .rtag{ font-size:12.5px; color:#444; margin-bottom:8px; }
+  .tpl-classic .rcontact{ font-size:11.5px; color:#555; margin-bottom:16px; }
+  .tpl-classic h3.rsection{
+    font-size:12.5px; text-transform:uppercase; letter-spacing:1px; color:#222;
+    border-bottom:1.5px solid #222; padding-bottom:3px; margin:16px 0 8px;
+  }
+  .tpl-classic p, .tpl-classic li{ font-size:12.5px; color:#222; }
+  .tpl-classic ul{ margin:4px 0 4px 18px; }
+  .tpl-classic .rentry-title{ font-weight:bold; }
+  .tpl-classic .rentry-org{ font-style: italic; color:#444; }
+  .tpl-classic .rentry-date{ float:right; font-size:11.5px; color:#555; }
+
+  /* --- resume template: navy modern --- */
+  .tpl-navy .rheader{ background:#1B2A41; color:#fff; padding:22px 28px; margin:-34px -38px 18px; }
+  .tpl-navy h2.rname{ font-size:26px; margin-bottom:2px; font-family:Georgia,serif; }
+  .tpl-navy .rtag{ font-size:12.5px; color:#D7E4E4; margin-bottom:8px; }
+  .tpl-navy .rcontact{ font-size:11px; color:#C9D6D6; }
+  .tpl-navy h3.rsection{
+    font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:#1B2A41;
+    border-bottom:1.5px solid #2E7D7B; padding-bottom:3px; margin:16px 0 8px;
+  }
+  .tpl-navy p, .tpl-navy li{ font-size:12.5px; color:#222; }
+  .tpl-navy ul{ margin:4px 0 4px 18px; }
+  .tpl-navy .rentry-title{ font-weight:bold; color:#1B2A41; }
+  .tpl-navy .rentry-org{ font-style: italic; color:#555; }
+  .tpl-navy .rentry-date{ float:right; font-size:11.5px; color:#666; }
+
+  /* --- resume template: coral warm --- */
+  .tpl-coral h2.rname{ font-size:26px; margin-bottom:2px; font-family:Georgia,serif; color:#262624; }
+  .tpl-coral .rtag{ font-size:12.5px; color:#C1502E; font-style:italic; margin-bottom:8px; }
+  .tpl-coral .rcontact{ font-size:11.5px; color:#6B6B68; margin-bottom:16px; }
+  .tpl-coral h3.rsection{
+    font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:#C1502E;
+    border-bottom:1.2px solid #C1502E; padding-bottom:3px; margin:16px 0 8px;
+  }
+  .tpl-coral p, .tpl-coral li{ font-size:12.5px; color:#262624; }
+  .tpl-coral ul{ margin:4px 0 4px 18px; }
+  .tpl-coral .rentry-title{ font-weight:bold; }
+  .tpl-coral .rentry-org{ font-style: italic; color:#6B6B68; }
+  .tpl-coral .rentry-date{ float:right; font-size:11.5px; color:#6B6B68; }
+
+  .rclear{ clear:both; }
+
+  @media (max-width: 560px){
+    .app{ height: 94vh; border-radius: 12px; }
+    .brand h1{ font-size: 21px; }
+    .tab{ font-size: 10px; padding: 9px 3px; }
+    #resumePreview{ padding: 22px 20px; }
+    .tpl-navy .rheader{ margin:-22px -20px 16px; padding:18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="dot"></div>
+      <h1>CareerBuddy</h1>
+    </div>
+    <div class="tagline">a rule-based study, interview &amp; resume companion for freshers</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-mode="resume">Resume Tips</div>
+    <div class="tab" data-mode="interview">Mock Interview</div>
+    <div class="tab" data-mode="concept">Explain a Concept</div>
+    <div class="tab" data-mode="builder">Build Resume</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+  <div class="suggestions" id="suggestions"></div>
+  <div class="inputbar" id="inputbar">
+    <input id="input" type="text" placeholder="Type your question..." />
+    <button id="send">Send</button>
+  </div>
+
+  <!-- BUILDER PANEL -->
+  <div class="builder" id="builder">
+
+    <div class="b-section-title">Template &amp; Target Role</div>
+    <div class="b-row">
+      <div class="b-field">
+        <label>Template Style</label>
+        <select id="tplSelect">
+          <option value="classic">Classic ATS (plain, safe for all applications)</option>
+          <option value="navy">Modern Navy (header band, tech/corporate)</option>
+          <option value="coral">Warm Coral (minimalist, creative-friendly)</option>
+        </select>
+      </div>
+      <div class="b-field">
+        <label>Target Role / Tagline</label>
+        <input id="fRole" type="text" placeholder="e.g. Data Analyst, Content Moderator, Software Engineer" />
+      </div>
+    </div>
+
+    <div class="b-section-title">Contact Details</div>
+    <div class="b-row">
+      <div class="b-field"><label>Full Name</label><input id="fName" type="text" placeholder="Prajna M S" /></div>
+      <div class="b-field"><label>Phone</label><input id="fPhone" type="text" placeholder="+91-XXXXXXXXXX" /></div>
+    </div>
+    <div class="b-row">
+      <div class="b-field"><label>Email</label><input id="fEmail" type="text" placeholder="you@email.com" /></div>
+      <div class="b-field"><label>Location</label><input id="fLocation" type="text" placeholder="City, State" /></div>
+      <div class="b-field"><label>LinkedIn (optional)</label><input id="fLinkedin" type="text" placeholder="linkedin.com/in/you" /></div>
+    </div>
+
+    <div class="b-section-title">Profile Summary</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <textarea id="fSummary" rows="3" placeholder="2-3 lines about your background, strengths, and what you're looking for."></textarea>
+      </div>
+    </div>
+
+    <div class="b-section-title">Skills</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <input id="fSkills" type="text" placeholder="Comma-separated, e.g. Python, SQL, Communication, MS Excel" />
+      </div>
+    </div>
+
+    <div class="b-section-title">Experience / Internships</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <textarea id="fExperience" rows="6" placeholder="Format per entry:
+Title | Company | Dates
+- Bullet point one
+- Bullet point two
+
+(leave a blank line between entries)"></textarea>
+        <div class="hint">One entry per block. First line: Title | Company | Dates. Then lines starting with "-" as bullets.</div>
+      </div>
+    </div>
+
+    <div class="b-section-title">Projects</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <textarea id="fProjects" rows="6" placeholder="Format per entry:
+Project Name | Tech Used
+- Bullet point one
+- Bullet point two"></textarea>
+      </div>
+    </div>
+
+    <div class="b-section-title">Education</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <textarea id="fEducation" rows="4" placeholder="One line per entry:
+Degree | Institution | Year | Score(optional)"></textarea>
+      </div>
+    </div>
+
+    <div class="b-section-title">Certifications (optional)</div>
+    <div class="b-row">
+      <div class="b-field full">
+        <input id="fCerts" type="text" placeholder="Comma-separated, e.g. Azure Fundamentals, Deloitte Forage" />
+      </div>
+    </div>
+
+    <div class="b-actions">
+      <button class="btn-generate" id="genBtn">Generate Resume</button>
+      <button class="btn-copy" id="copyBtn">Copy as Text</button>
+      <button class="btn-download" id="downloadBtn">Download as HTML</button>
+    </div>
+
+    <div class="b-preview-wrap">
+      <div class="b-preview-label">Preview</div>
+      <div id="resumePreview" class="tpl-classic"></div>
+    </div>
+
+  </div>
+
+  <div class="footnote">Rule-based responses &amp; template builder · no internet or API key needed</div>
+</div>
+
+<script>
+  const chatEl = document.getElementById('chat');
+  const inputEl = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+  const suggEl = document.getElementById('suggestions');
+  const inputbarEl = document.getElementById('inputbar');
+  const builderEl = document.getElementById('builder');
+  const tabs = document.querySelectorAll('.tab');
+
+  const modeLabels = { resume: "Resume Tips", interview: "Mock Interview", concept: "Explain a Concept", builder: "Build Resume" };
+
+  // ---------- KNOWLEDGE BASE (same as before) ----------
+  const resumeKB = [
+    { kw: ["summary","profile","objective"], a: "For a fresher resume, use a 2-3 line Profile Summary instead of an old-style 'Objective'. Mention your degree, your strongest skill area, and what you're looking for. Skip generic lines like 'seeking a challenging role' — be specific." },
+    { kw: ["ats","keyword","format","template"], a: "Keep it ATS-friendly: single column, standard fonts (Calibri/Arial), no tables or graphics for the main content, and use the exact keywords from the job description where they genuinely apply to you." },
+    { kw: ["project","projects"], a: "For each project: name it clearly, list the tech stack, and describe it with 1-2 outcome-focused bullet points (what it does, what result you got — accuracy, speed, users). Avoid just listing what you 'learned'." },
+    { kw: ["skill","skills"], a: "Group skills by category (Languages, Tools, Concepts) rather than one long list. Only include what you can genuinely speak to in an interview." },
+    { kw: ["length","page","how long"], a: "One page. As a fresher, you almost never have enough substance to justify two pages, and recruiters skim in seconds." },
+    { kw: ["gap","break","no experience","fresher"], a: "As a fresher, lean on projects, certifications, and internships to fill the experience section. Frame coursework and self-directed learning as proactive, not as a substitute." },
+    { kw: ["action verb","bullet","phrase"], a: "Start bullets with strong action verbs — Built, Designed, Automated, Reduced, Analyzed — instead of 'Responsible for' or 'Worked on'." },
+    { kw: ["email","phone","contact"], a: "Keep contact info simple: full name, phone, professional email (avoid nicknames), city, and LinkedIn if it's active and complete." },
+    { kw: ["cover letter"], a: "A cover letter should do 3 things: say which role you're applying for, connect ONE or two of your strongest experiences directly to what they're asking for, and close with genuine interest — not generic enthusiasm." },
+    { kw: ["build","builder","create resume","make resume"], a: "Head over to the 'Build Resume' tab above — fill in your details once, pick a template, and it'll generate a formatted resume you can copy or download." },
+  ];
+
+  const conceptKB = [
+    { kw: ["oop","object oriented"], a: "OOP (Object-Oriented Programming) organizes code around 'objects' that bundle data and behavior together, built on four pillars: Encapsulation, Abstraction, Inheritance, and Polymorphism." },
+    { kw: ["encapsulation"], a: "Encapsulation means bundling data and the methods that work on it into one unit (a class), and hiding internal details from outside access — like a capsule protecting what's inside." },
+    { kw: ["inheritance"], a: "Inheritance lets one class (child) reuse and extend the properties/methods of another class (parent), avoiding duplicate code. E.g., a 'Car' class can inherit from a general 'Vehicle' class." },
+    { kw: ["polymorphism"], a: "Polymorphism means the same function/method behaves differently depending on the object calling it. E.g., a 'speak()' method might bark for a Dog object and meow for a Cat object." },
+    { kw: ["abstraction"], a: "Abstraction means showing only the essential features of something while hiding complex internal details — like driving a car without needing to know how the engine works." },
+    { kw: ["normalization","normal form"], a: "Normalization in DBMS is the process of organizing data to reduce redundancy and avoid update anomalies, done in stages called Normal Forms (1NF, 2NF, 3NF, etc.)." },
+    { kw: ["primary key"], a: "A Primary Key uniquely identifies each record in a table — it can't be null or duplicated." },
+    { kw: ["foreign key"], a: "A Foreign Key is a field in one table that links to the Primary Key of another table, used to connect related data across tables." },
+    { kw: ["join","sql join"], a: "A JOIN combines rows from two or more tables based on a related column. INNER JOIN returns only matching rows; LEFT JOIN returns all rows from the left table plus matches from the right." },
+    { kw: ["acid"], a: "ACID describes the properties that make database transactions reliable: Atomicity (all-or-nothing), Consistency (valid state), Isolation (transactions don't interfere), Durability (changes persist after commit)." },
+    { kw: ["process","thread"], a: "A Process is an independent running program with its own memory space. A Thread is a smaller unit within a process that shares memory with other threads of the same process — lighter weight, faster to switch between." },
+    { kw: ["machine learning","ml basics"], a: "Machine Learning is a way for computers to learn patterns from data instead of being explicitly programmed with rules, then use those patterns to make predictions on new data." },
+    { kw: ["deep learning","neural network"], a: "Deep Learning uses neural networks — layers of interconnected nodes loosely inspired by the brain — to learn complex patterns, especially useful for images, text, and audio." },
+    { kw: ["supervised","unsupervised"], a: "Supervised learning trains on labeled data (input + correct answer) to predict outcomes, like classifying images. Unsupervised learning finds patterns in unlabeled data, like grouping similar customers together." },
+    { kw: ["array","linked list"], a: "An Array stores elements in contiguous memory with fast random access but a fixed size. A Linked List stores elements as nodes with pointers to the next node — flexible size, but slower access since you traverse node by node." },
+    { kw: ["stack","queue"], a: "A Stack follows Last-In-First-Out (like a stack of plates). A Queue follows First-In-First-Out (like a line at a counter)." },
+    { kw: ["osi","tcp/ip","networking"], a: "The OSI model has 7 layers describing how data travels across a network (Physical, Data Link, Network, Transport, Session, Presentation, Application). TCP/IP is the simplified 4-layer model actually used on the internet." },
+  ];
+
+  const interviewQuestions = [
+    "Tell me about yourself.",
+    "What are your strengths and weaknesses?",
+    "Why do you want to work with us?",
+    "Describe a project you're proud of and what you learned from it.",
+    "How do you handle working under pressure or tight deadlines?",
+    "Where do you see yourself in 3-5 years?",
+    "Tell me about a time you faced a challenge and how you solved it.",
+    "What is the difference between a stack and a queue?",
+    "Why should we hire you over other candidates?",
+    "Do you have any questions for us?"
+  ];
+
+  const feedbackTemplates = [
+    "That's a solid start — try adding one concrete example or number to back it up next time.",
+    "Good structure. Keep answers around 45-60 seconds for questions like this — concise but complete.",
+    "Nice, that shows self-awareness. In an interview, pairing this with a quick example makes it land even better.",
+    "Good effort. Try to connect your answer back to the specific role you're applying for.",
+    "That works — just watch out for filler words like 'basically' or 'um' when you say this out loud.",
+  ];
+
+  const greetings = {
+    resume: "Ask me about resume topics — summary, ATS formatting, projects, skills, cover letters, and more. Or head to the 'Build Resume' tab to generate a full resume.",
+    interview: "Let's do a mock interview. I'll ask a question, you type your answer, and I'll give quick feedback before the next one.\n\nQuestion 1: " + interviewQuestions[0],
+    concept: "Ask me to explain a CS concept — OOP, DBMS, data structures, ML basics, and more. Try a suggestion below or type your own."
+  };
+
+  const suggestions = {
+    resume: ["How long should my resume be?", "Tips for writing a summary", "How to make it ATS-friendly", "How do I describe projects?"],
+    interview: [],
+    concept: ["What is OOP?", "Explain normalization", "Stack vs Queue", "What is machine learning?"]
+  };
+
+  // ---------- STATE ----------
+  let currentMode = 'resume';
+  let started = { resume:false, interview:false, concept:false };
+  let interviewIndex = 0;
+
+  // ---------- CHAT RENDER HELPERS ----------
+  function addMsg(role, text, label){
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    if(role === 'bot'){
+      const lab = document.createElement('span');
+      lab.className = 'label';
+      lab.textContent = label || modeLabels[currentMode].toUpperCase();
+      div.appendChild(lab);
+      const body = document.createElement('span');
+      body.textContent = text;
+      div.appendChild(body);
+    } else {
+      div.textContent = text;
+    }
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  function renderSuggestions(mode){
+    suggEl.innerHTML = '';
+    (suggestions[mode] || []).forEach(s => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = s;
+      chip.addEventListener('click', () => { inputEl.value = s; sendMessage(); });
+      suggEl.appendChild(chip);
+    });
+  }
+
+  function switchMode(mode){
+    currentMode = mode;
+
+    if(mode === 'builder'){
+      chatEl.style.display = 'none';
+      suggEl.style.display = 'none';
+      inputbarEl.style.display = 'none';
+      builderEl.style.display = 'block';
+      return;
+    } else {
+      chatEl.style.display = 'flex';
+      suggEl.style.display = 'flex';
+      inputbarEl.style.display = 'flex';
+      builderEl.style.display = 'none';
+    }
+
+    chatEl.innerHTML = '';
+    renderSuggestions(mode);
+    if(!started[mode]){
+      addMsg('bot', greetings[mode]);
+      started[mode] = true;
+      if(mode === 'interview') interviewIndex = 0;
+    } else {
+      addMsg('bot', greetings[mode]);
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      switchMode(tab.dataset.mode);
+    });
+  });
+
+  // ---------- CHAT MATCHING LOGIC ----------
+  function matchKB(kb, text){
+    const lower = text.toLowerCase();
+    let best = null, bestScore = 0;
+    kb.forEach(entry => {
+      let score = 0;
+      entry.kw.forEach(k => { if(lower.includes(k)) score += k.split(' ').length; });
+      if(score > bestScore){ bestScore = score; best = entry; }
+    });
+    return bestScore > 0 ? best.a : null;
+  }
+
+  function handleResume(text){
+    return matchKB(resumeKB, text) ||
+      "I don't have a specific answer for that one yet — try asking about summary, ATS formatting, projects, skills, resume length, or cover letters.";
+  }
+  function handleConcept(text){
+    return matchKB(conceptKB, text) ||
+      "I don't have that concept in my notes yet — try OOP, inheritance, polymorphism, normalization, primary/foreign keys, joins, ACID, process vs thread, ML basics, or data structures like stacks/queues.";
+  }
+  function handleInterview(text){
+    const feedback = feedbackTemplates[interviewIndex % feedbackTemplates.length];
+    interviewIndex++;
+    if(interviewIndex < interviewQuestions.length){
+      return feedback + "\n\nQuestion " + (interviewIndex+1) + ": " + interviewQuestions[interviewIndex];
+    } else {
+      return feedback + "\n\nThat's the full set of questions for this round. Switch tabs and come back anytime to run through them again.";
+    }
+  }
+
+  function sendMessage(){
+    const text = inputEl.value.trim();
+    if(!text) return;
+    inputEl.value = '';
+    addMsg('user', text);
+    let reply;
+    if(currentMode === 'resume') reply = handleResume(text);
+    else if(currentMode === 'concept') reply = handleConcept(text);
+    else reply = handleInterview(text);
+    setTimeout(() => { addMsg('bot', reply, modeLabels[currentMode].toUpperCase()); }, 280);
+    inputEl.focus();
+  }
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+  // ---------- RESUME BUILDER LOGIC ----------
+  function esc(s){
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function parseEntries(raw){
+    // Splits textarea into blocks separated by blank lines.
+    // First line of each block: "Title | Org | Dates"
+    // Following lines starting with "-" become bullets.
+    if(!raw || !raw.trim()) return [];
+    const blocks = raw.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+    return blocks.map(block => {
+      const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+      const headerParts = lines[0].split('|').map(p => p.trim());
+      const bullets = lines.slice(1)
+        .filter(l => l.startsWith('-'))
+        .map(l => l.replace(/^-\s*/, ''));
+      return {
+        title: headerParts[0] || '',
+        org: headerParts[1] || '',
+        dates: headerParts[2] || '',
+        bullets
+      };
+    });
+  }
+
+  function parseEducation(raw){
+    if(!raw || !raw.trim()) return [];
+    return raw.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+      const parts = line.split('|').map(p => p.trim());
+      return { degree: parts[0]||'', inst: parts[1]||'', year: parts[2]||'', score: parts[3]||'' };
+    });
+  }
+
+  function buildEntryHTML(entry){
+    let bulletsHTML = '';
+    if(entry.bullets.length){
+      bulletsHTML = '<ul>' + entry.bullets.map(b => `<li>${esc(b)}</li>`).join('') + '</ul>';
+    }
+    return `
+      <div class="rclear">
+        <span class="rentry-date">${esc(entry.dates)}</span>
+        <span class="rentry-title">${esc(entry.title)}</span>${entry.org ? ' — <span class="rentry-org">'+esc(entry.org)+'</span>' : ''}
+      </div>
+      ${bulletsHTML}
+    `;
+  }
+
+  function generateResume(){
+    const tpl = document.getElementById('tplSelect').value;
+    const name = document.getElementById('fName').value || 'Your Name';
+    const role = document.getElementById('fRole').value;
+    const phone = document.getElementById('fPhone').value;
+    const email = document.getElementById('fEmail').value;
+    const location = document.getElementById('fLocation').value;
+    const linkedin = document.getElementById('fLinkedin').value;
+    const summary = document.getElementById('fSummary').value;
+    const skills = document.getElementById('fSkills').value;
+    const experience = parseEntries(document.getElementById('fExperience').value);
+    const projects = parseEntries(document.getElementById('fProjects').value);
+    const education = parseEducation(document.getElementById('fEducation').value);
+    const certs = document.getElementById('fCerts').value;
+
+    const contactParts = [location, phone, email, linkedin].filter(Boolean);
+
+    let headerHTML;
+    if(tpl === 'navy'){
+      headerHTML = `
+        <div class="rheader">
+          <h2 class="rname">${esc(name)}</h2>
+          ${role ? `<div class="rtag">${esc(role)}</div>` : ''}
+          <div class="rcontact">${contactParts.map(esc).join('  |  ')}</div>
+        </div>
+      `;
+    } else {
+      headerHTML = `
+        <h2 class="rname">${esc(name)}</h2>
+        ${role ? `<div class="rtag">${esc(role)}</div>` : ''}
+        <div class="rcontact">${contactParts.map(esc).join('  |  ')}</div>
+      `;
+    }
+
+    let html = headerHTML;
+
+    if(summary.trim()){
+      html += `<h3 class="rsection">Profile Summary</h3><p>${esc(summary)}</p>`;
+    }
+
+    if(skills.trim()){
+      html += `<h3 class="rsection">Skills</h3><p>${esc(skills)}</p>`;
+    }
+
+    if(experience.length){
+      html += `<h3 class="rsection">Experience</h3>`;
+      experience.forEach(e => { html += buildEntryHTML(e); });
+    }
+
+    if(projects.length){
+      html += `<h3 class="rsection">Projects</h3>`;
+      projects.forEach(e => { html += buildEntryHTML(e); });
+    }
+
+    if(education.length){
+      html += `<h3 class="rsection">Education</h3>`;
+      education.forEach(ed => {
+        html += `<div class="rclear">
+          <span class="rentry-date">${esc(ed.year)}</span>
+          <span class="rentry-title">${esc(ed.degree)}</span>${ed.inst ? ' — <span class="rentry-org">'+esc(ed.inst)+'</span>' : ''}
+          ${ed.score ? '<div>'+esc(ed.score)+'</div>' : ''}
+        </div>`;
+      });
+    }
+
+    if(certs.trim()){
+      html += `<h3 class="rsection">Certifications</h3><p>${esc(certs)}</p>`;
+    }
+
+    const preview = document.getElementById('resumePreview');
+    preview.className = 'tpl-' + tpl;
+    preview.innerHTML = html;
+  }
+
+  document.getElementById('genBtn').addEventListener('click', generateResume);
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const preview = document.getElementById('resumePreview');
+    if(!preview.innerHTML.trim()){ generateResume(); }
+    const text = document.getElementById('resumePreview').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const preview = document.getElementById('resumePreview');
+    if(!preview.innerHTML.trim()){ generateResume(); }
+    const tplClass = preview.className;
+    const name = document.getElementById('fName').value || 'Resume';
+    const fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(name)} - Resume</title>
+    <style>
+      body{ font-family: Georgia, serif; padding: 40px; max-width: 800px; margin:0 auto; color:#222; }
+      h2.rname{ font-size:26px; margin-bottom:2px; }
+      .rtag{ font-size:13px; color:#444; margin-bottom:8px; }
+      .rcontact{ font-size:12px; color:#555; margin-bottom:18px; }
+      h3.rsection{ font-size:13px; text-transform:uppercase; letter-spacing:1px; border-bottom:1.5px solid #222; padding-bottom:4px; margin:18px 0 8px; }
+      p, li{ font-size:13px; }
+      ul{ margin:4px 0 4px 20px; }
+      .rentry-title{ font-weight:bold; }
+      .rentry-org{ font-style:italic; color:#444; }
+      .rentry-date{ float:right; font-size:12px; color:#555; }
+      .rclear{ clear:both; }
+      .rheader{ background:#1B2A41; color:#fff; padding:24px 30px; margin:-40px -40px 20px; }
+      .rheader .rtag{ color:#D7E4E4; } .rheader .rcontact{ color:#C9D6D6; }
+      .tpl-coral h3.rsection{ color:#C1502E; border-bottom-color:#C1502E; }
+      .tpl-coral .rtag{ color:#C1502E; font-style:italic; }
+      .tpl-navy h3.rsection{ color:#1B2A41; border-bottom-color:#2E7D7B; }
+    </style></head><body class="${tplClass}">${preview.innerHTML}</body></html>`;
+
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (name.replace(/\s+/g,'_') || 'Resume') + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // init
+  switchMode(currentMode);
+</script>
+
+</body>
+</html>
